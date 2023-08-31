@@ -1,0 +1,151 @@
+<form [formGroup]="form" *ngIf="isLoaded && !isAdmin">
+
+
+    <div class="row">
+        <div class="mb-3 col-5">
+            <label>Define schedules for {{account.firstName}}</label>
+        </div>
+    </div>
+
+    <fieldset>
+        <legend>Date & Duty:</legend>
+        <div class="container">
+            <div class="row">
+                <div class="mb-3 col-6">
+                    <mat-form-field appearance="outline" >
+                        <mat-label>Schedule</mat-label>
+                        <input formControlName="scheduledDate" #ref matInput [ngxMatDatetimePicker]="picker"
+                            placeholder="Choose a date" [disabled]="false" required />
+                        <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                        <mat-hint>{{dateFormat}}</mat-hint>
+                        <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+                            [stepMinute]="1" [stepSecond]="0" [touchUi]="false" [color]="undefined"
+                            [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                        </ngx-mat-datetime-picker>
+                        <mat-error *ngIf="f['scheduledDate'].errors">Invalid DOB</mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row equal">
+                <div class="mb-3 col-3">
+                    <mat-form-field appearance="outline" >
+                        <mat-label>Duty</mat-label>
+                        <mat-select formControlName="function"
+                            [ngClass]="{ 'is-invalid': submitted && f['function'].errors }"
+                            (selectionChange)="onDutyChanged($event)" required>
+                            <mat-option *ngFor="let item of userFunctions" [value]=item.userFunction>
+                                {{ item.userFunction }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="submitted && form.controls['function'].hasError('invalidFunction')"
+                            class="alert alert-danger">
+                            Duty can't be empty
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="mb-3 col-3" *ngIf=isCleaner>
+                    <mat-form-field appearance="outline" >
+                        <mat-label>Team</mat-label>
+                        <input type="text" #data matInput formControlName="cleanerGroup" matInput
+                            placeholder="Specify a group" oninput="this.value = this. value.toUpperCase()" required/>
+                        <mat-error *ngIf="f['cleanerGroup'].enabled && f['cleanerGroup'].hasError('required')">The field
+                            is required</mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mb-3" *ngIf="isLoggedAsAdmin">
+            <button type="button" (click)="onAddSchedule()" class="btn btn-primary"
+                [ngClass]="{ 'disabled': !form.controls['scheduledDate'].valid}">
+                <span *ngIf="isAdding" class="spinner-border spinner-border-sm mr-1"></span> Add
+            </button>
+            &nbsp;
+        </div>
+    </fieldset>
+</form>
+
+<fieldset>
+    <legend>Assigned Dates:</legend>
+
+    <div class="container">
+        <mat-form-field appearance="outline">
+            <mat-label>Filter</mat-label>
+            <input matInput (keyup)="applyFilter($event.target, input)" placeholder="Search columns" #input>
+        </mat-form-field>
+    </div>
+
+    <mat-table #table [dataSource]="dataSource" matSort style="min-width: 800px;">
+        
+        <ng-container matColumnDef="date">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Date </mat-header-cell>
+            <mat-cell *matCellDef="let schedule">
+                <!--mat-form-field appearance="outline"-->
+                    <input type="text" matInput (dateChange)="onDateChanged($event, schedule)" [value]="convertServerDate2LocalStr(schedule.date)" readonly>
+
+                    <!-- <input matInput [ngxMatDatetimePicker]="picker" (dateChange)="onDateChanged($event, schedule)"
+                        [value]="convertServerDate2Local(schedule.date)" [readonly]="true">
+                    <mat-datepicker-toggle matIconSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                    <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+                        [stepMinute]="1" [stepSecond]="1" [touchUi]="true" [color]="color" [enableMeridian]="false"
+                        [disableMinute]="false" [hideTime]="false">
+                    </ngx-mat-datetime-picker> -->
+                <!--/mat-form-field-->
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="userFunction">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Duty </mat-header-cell>
+            <mat-cell *matCellDef="let schedule">
+                <!--mat-form-field appearance="outline"-->
+                    <input type="text" #data matInput placeholder="None" [value]="schedule.userFunction" (selectionChange)="onUserFunctionChanged($event, schedule)" readonly/>
+                    <!-- <mat-select placeholder={{schedule.userFunction}} (selectionChange)="onUserFunctionChanged($event, schedule)">
+                        <mat-option *ngFor="let f of userFunctions" [value]="f.userFunction">
+                            {{ f.userFunction }}
+                        </mat-option>
+                    </mat-select> -->
+                <!--/mat-form-field-->
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="scheduleGroup">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Team </mat-header-cell>
+            <mat-cell *matCellDef="let i = index;let schedule">
+                <!--mat-form-field appearance="outline"-->
+                <span *ngIf="schedule.scheduleGroup == undefined">
+                    <input type="text" #data matInput placeholder="None"  [value]="" (keydown.enter)="onCleanerGroupPressed($event)" readonly/>
+                </span>
+                <span *ngIf="schedule.scheduleGroup != undefined">
+                    <input type="text" #data matInput placeholder="None"  [value]="schedule.scheduleGroup" (keydown.enter)="onCleanerGroupPressed($event)" readonly/>
+                </span>
+                <!--/mat-form-field-->
+            </mat-cell>
+        </ng-container>
+
+
+        <ng-container matColumnDef="action">
+            <mat-header-cell *matHeaderCellDef> Action </mat-header-cell>
+            <mat-cell *matCellDef="let i = index; let schedule; let row">
+                <button mat-raised-button color="warn" (click)="onDeleteSchedule(i, schedule, row)">
+                    <span *ngIf="schedule.deleting" class="spinner-border spinner-border-sm mr-1"></span>Delete
+                </button>
+            </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row class="table-row" *matRowDef="let row; columns: displayedColumns;" [ngClass]="{hovered: row.hovered}"
+            (mouseover)="row.hovered = true" (mouseout)="row.hovered = false" #tr (click)="onRowSelected(row, tr)">
+        </mat-row>
+    </mat-table>
+
+    <mat-paginator #paginator [length]="schedules.length" [pageSizeOptions]="[10, 30, 50, 100]" showFirstLastButtons>
+    </mat-paginator>
+</fieldset>
+
+<div type="button" class="mb-3">
+    <a routerLink="/admin/accounts" class="btn btn-link">Back</a>
+</div>
+<div class="row mt-3"></div>

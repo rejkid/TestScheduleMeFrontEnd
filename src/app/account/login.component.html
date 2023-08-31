@@ -1,0 +1,57 @@
+﻿<h3 class="card-header">Login</h3>
+<div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="row">
+            <div class="mb-3">
+                <label id="emailLabel">Email</label>
+                <input id="emailInput" type="text" formControlName="email" class="form-control"
+                    [ngClass]="{ 'is-invalid': submitted && f['email'].errors }" required />
+                <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+                    <div *ngIf="f['email'].errors['required']">Email is required</div>
+                    <div *ngIf="f['email'].errors['email']">Email is invalid</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="mb-3">
+                <mat-form-field appearance="outline">
+                    <mat-label>DOB</mat-label>
+                    <input formControlName="dob" #ref matInput [ngxMatDatetimePicker]="picker"
+                        placeholder="Choose a date" required />
+                    <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                    <mat-hint>{{DATE_FORMAT}}</mat-hint>
+                    <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+                        [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [color]="undefined" [enableMeridian]="false"
+                        [disableMinute]="false" [hideTime]="true">
+                    </ngx-mat-datetime-picker>
+                    <mat-error *ngIf="f['dob'].errors">Invalid DOB</mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="row">
+            <div class="mb-3">
+                <label id="passwordLabel">Password</label>
+                <input type="password" formControlName="password" class="form-control"
+                    [ngClass]="{ 'is-invalid': submitted && f['password'].errors }" />
+                <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+                    <div *ngIf="f['password'].errors['required']">Password is required</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <button [disabled]="loading" class="btn btn-primary">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+                    Login
+                </button>
+            </div>
+            <div class="col-3">
+                <a routerLink="../register" class="btn btn-link">Register</a>
+            </div>
+            <div class="col-5">
+                <a routerLink="../forgot-password" class="btn btn-link pr-0">Forgot Password?</a>
+            </div>
+        </div>
+    </form>
+</div>

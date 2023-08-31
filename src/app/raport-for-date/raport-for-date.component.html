@@ -1,0 +1,46 @@
+<div class="p-4">
+    <div class="container" *ngIf="futureScheduleDateStrings">
+        <form [formGroup]="form">
+            <div class="mb-3">
+                <label for="dates" class="me-2">Dates:</label>
+                <input type="checkbox" (change)="onCheckboxChange($event)" formControlName="allDates" id="allDates"
+                    name="allDates" value="" class="ms-5">
+                <label for="allDates" class="ps-2">All</label><br>
+                <select #dates formControlName="dates" class="form-select" (ngModelChange)="onSelected($event)" >Choose
+                    <option value="" selected hidden>Choose here</option>
+                    <option *ngFor="let date of futureScheduleDateStrings">{{date}}/{{getDayStrFromDate(date)}}</option>
+                </select>
+                <div *ngIf="f['dates'].dirty && f['dates'].hasError('invalidDate')" class="alert alert-danger">Date must
+                    be
+                    valid
+                </div>
+            </div>
+
+            <fieldset *ngFor="let team of teams | orderByDate: 'function': 'asc' ">
+            <!-- <fieldset *ngFor="let team of teams"> -->
+                <legend>{{team.function}} :</legend>
+                <div class="border border-primary">
+
+                    <table id=scheduledTable class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th style="width:30%">Duty</th>
+                                <th style="width:30%">User</th>
+                                <th style="width:30%">Team</th>
+                                <th style="width:10%"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let user of team.users">
+                                <td>{{user.function}} </td>
+                                <td>{{user.firstName}} </td>
+                                <td>{{user.scheduleGroup}} </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>

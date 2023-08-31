@@ -1,0 +1,20 @@
+﻿
+<h1>User Properties</h1>
+<div class="mb-3 col">
+    <label *ngIf="account">Choose Property for {{account.firstName}}</label>
+</div>
+<table class="table table-striped">
+    <tbody>
+        <tr >
+            <td style="white-space: nowrap" *ngIf="account">
+                <a routerLink="function/{{account.id}}" class="btn btn-sm btn-primary mr-2" >Duties</a>
+                &nbsp;
+                <a routerLink="schedules/{{account.id}}" class="btn btn-sm btn-primary mr-2">Schedules</a>
+            </td>
+        </tr>
+    </tbody>
+    <div class="mb-3">
+        <a routerLink="/profile" class="btn btn-link">Back</a>
+    </div>
+
+</table>

@@ -1,0 +1,85 @@
+<div class="mb-3 col" *ngIf="isLoaded">
+    <label>Schedules for {{account.firstName}}</label>
+</div>
+<form [formGroup]="form">
+    <fieldset>
+        <legend>Available Dates:</legend>
+        <div *ngIf="!isLoggedAsAdmin">
+            <div class="col">
+                <label>Date/Time</label>
+                <select #element formControlName="availableSchedule4Function" class="form-select">
+                    <option *ngFor="let item of poolElements">
+                        <span *ngIf='item.userFunction === "Cleaner"' class="spinner-border spinner-border-sm mr-1">
+                        {{ getDisplayDate(item.date) }}/{{ item.userFunction }}/{{ item.scheduleGroup }}
+                    </span>
+                        <span *ngIf='item.userFunction !="Cleaner"' class="spinner-border spinner-border-sm mr-1">
+                        {{ getDisplayDate(item.date) }}/{{ item.userFunction }}
+                    </span>
+                    </option>
+                </select>
+            </div>
+        </div>
+        <br>
+        <button type="button" (click)="onAddAvailableSchedule()" class="btn btn-primary"
+            [ngClass]="{ 'disabled': !form.controls['availableSchedule4Function'].valid || poolElements.length <= 0 || isAdding}">
+            <span *ngIf="isAdding" class="spinner-border spinner-border-sm mr-1"></span> Add
+        </button>
+    </fieldset>
+
+    <fieldset>
+        <legend>Assigned Dates:</legend>
+        <input type="checkbox" (change)="onCheckboxChange($event)" formControlName="allDates" id="allDates"
+            name="allDates" value="">
+        <label for="allDates" class="ps-2">All</label><br>
+    </fieldset>
+</form>
+
+<br>
+
+<div class="d-flex justify-content-center" *ngIf="!account">
+    <span class="spinner-border spinner-border-lg align-center"></span>
+</div>
+
+<div class="color-sample mat-elevation-z3" 
+         [style.background-color]="color">
+<div class="border">
+    <mat-table #table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="date">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Date/Time </mat-header-cell>
+            <mat-cell *matCellDef="let schedule">{{getDisplayDate(schedule.date)}}
+            </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="userFunction">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Duty </mat-header-cell>
+            <mat-cell *matCellDef="let schedule">{{schedule.userFunction}}
+            </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="scheduleGroup">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Team </mat-header-cell>
+            <mat-cell *matCellDef="let schedule">{{schedule.scheduleGroup}}
+            </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="action">
+            <mat-header-cell *matHeaderCellDef> Action </mat-header-cell>
+            <mat-cell *matCellDef="let i = index; let schedule; let row">
+                <button class="btn btn-sm btn-danger btn-delete-account" type="button" (click)="onDeleteSchedule($event, row, i, schedule)"
+                    [ngClass]="{ 'disabled': isScheduleFromPast(row) || row.deleting}">
+                    <span *ngIf="row.deleting" class="spinner-border spinner-border-sm mr-1"></span> Delete
+                </button>
+            </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{hovered: row.hovered}"
+            (mouseover)="row.hovered = true" (mouseout)="row.hovered = false" #tr (click)="onRowSelected(row, tr)">
+        </mat-row>
+    </mat-table>
+
+    <mat-paginator #paginator [length]="schedules.length" [pageSizeOptions]="[5, 10, 30, 50]" showFirstLastButtons>
+    </mat-paginator>
+</div>
+</div>
+
+<div class="mb-3">
+    <a routerLink="/schedule" disabled="false" class="btn btn-link">Back</a>
+</div>
+<div class="row mt-3"></div>
