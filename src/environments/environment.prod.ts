@@ -5,6 +5,6 @@ export const environment = {
   shortDateTimeFormat: 'DD.MM.YY HH:mm',
 
   apiUrl: 'https://49.187.125.194:4000',
-  baseUrl:'https://49.187.125.194:4000'
+  baseUrl:'https://49.187.125.194:4000',
 
 };
