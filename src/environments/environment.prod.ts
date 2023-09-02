@@ -5,9 +5,9 @@ export const environment = {
   shortDateTimeFormat: 'DD.MM.YY HH:mm',
 
   //apiUrl: 'https://49.187.125.194:4000',
-  apiUrl: 'testschedulemebackend.azurewebsites.net',
+  apiUrl: 'testschedulemebackend.azurewebsites.net:4000',
 
   //baseUrl:'https://49.187.125.194:4000',
-  baseUrl:'testschedulemebackend.azurewebsites.net',
+  baseUrl:'testschedulemebackend.azurewebsites.net:4000',
 
 };
